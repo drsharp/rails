@@ -20,11 +20,10 @@ module ActiveRecord
       old, ENV["VERBOSE"] = ENV["VERBOSE"], "false"
 
       ActiveRecord::Base.configurations.configs_for(env_name: env_name, include_hidden: true).each do |db_config|
-        db_config._database = "#{db_config.database}_#{i}"
+        next unless db_config.database_tasks?
 
-        if db_config.database_tasks?
-          ActiveRecord::Tasks::DatabaseTasks.reconstruct_from_schema(db_config, nil)
-        end
+        db_config._database = "#{db_config.database}_#{i}"
+        ActiveRecord::Tasks::DatabaseTasks.reconstruct_from_schema(db_config, nil)
       end
     ensure
       ActiveRecord::Base.establish_connection
